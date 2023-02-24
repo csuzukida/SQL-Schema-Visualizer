@@ -1,1 +1,1 @@
-# SQL-Schema-Visualizer
+# SQL Schema Visualizer
