@@ -1,10 +1,11 @@
 import React from 'react';
-import Login from './Login';
+import Flow from './Flow';
 
 function App() {
   return (
-    <div>
-      <Login />
+    <div className="container">
+      SQL DIAGRAM VISUALIZER
+      <Flow />
     </div>
   );
 }
