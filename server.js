@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/styles.css', (req, res) => {
   res.set('Content-Type', 'text/css');
-  res.sendFile(path.join(__dirname, 'dist', 'styles.css'));
+  res.sendFile(path.join(__dirname, 'src', 'styles.css'));
 });
 
 app.get('/bundle.js', (req, res) => {
