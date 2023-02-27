@@ -4,7 +4,7 @@
   "description": "SQL Schema Visualizer",
   "main": "index.js",
   "scripts": {
-    "start": "webpack --watch & nodemon server.js",
+    "start": "webpack & nodemon server.js",
     "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
