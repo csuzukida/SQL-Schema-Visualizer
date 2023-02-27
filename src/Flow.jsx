@@ -40,7 +40,7 @@ function Flow() {
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
 
   return (
-    <div className="container">
+    <div className="diagram">
       <ReactFlow
         nodes={nodes}
         onNodesChange={onNodesChange}
