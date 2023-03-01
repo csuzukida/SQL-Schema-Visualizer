@@ -56,18 +56,23 @@ app.get('/bundle.js', (req, res) => {
 app.get('/api/schemas', async (req, res) => {
   try {
     const publicSchemaQuery = `
-      SELECT
-        tc.table_name,
-        kcu.column_name,
-        ccu.table_name AS foreign_table_name,
-        ccu.column_name AS foreign_column_name
-      FROM
-        information_schema.table_constraints AS tc
-      JOIN information_schema.key_column_usage AS kcu
-        ON tc.constraint_name = kcu.constraint_name
-      JOIN information_schema.constraint_column_usage AS ccu
-        ON ccu.constraint_name = tc.constraint_name
-      WHERE constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public';
+    SELECT
+      tc.table_name,
+      kcu.column_name,
+      ccu.table_name AS foreign_table_name,
+      ccu.column_name AS foreign_column_name,
+      kcu.table_name AS referenced_table_name
+    FROM
+      information_schema.table_constraints AS tc
+    JOIN information_schema.key_column_usage AS kcu
+      ON tc.constraint_name = kcu.constraint_name
+    JOIN information_schema.constraint_column_usage AS ccu
+      ON ccu.constraint_name = tc.constraint_name
+    JOIN information_schema.tables AS t
+      ON t.table_name = ccu.table_name
+    WHERE
+      constraint_type = 'FOREIGN KEY'
+      AND tc.table_schema = 'public';
     `;
     const client = await pool.connect();
     const result = await client.query(publicSchemaQuery);
@@ -75,6 +80,7 @@ app.get('/api/schemas', async (req, res) => {
       table: row.table_name,
       column: row.column_name,
       type: row.data_type,
+      references: row.referenced_table_name,
     }));
     res.json({ schemas });
     client.release();
