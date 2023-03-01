@@ -2,7 +2,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
-  addNode,
   applyNodeChanges,
   applyEdgeChanges,
   Controls,
@@ -33,10 +32,10 @@ function Flow() {
         const nodeData = [];
         console.log('SCHEMA_DATA: ', schemaData);
         schemaData.forEach((schema, index) => {
-          if (!nodeData.find((node) => node.id === schema.table)) {
+          if (!nodeData.find((node) => node.id === schema.table_name)) {
             nodeData.push({
-              id: schema.table,
-              data: { label: schema.table },
+              id: schema.table_name,
+              data: { label: schema.table_name },
               position: {
                 x: 100 + index * Math.floor(Math.random() * 80),
                 y: 100 + index * Math.floor(Math.random() * 50),
@@ -45,18 +44,16 @@ function Flow() {
           }
         });
         console.log('NODE_DATA: ', nodeData);
-        const edgeData = schemaData.map((schema) => {
-          // console.log('nodeData: ', nodeData);
-          const targetNode = nodeData.find((node) => node.table === schema.foreign_table_name);
-          console.log('targetNode: ', targetNode);
-          return {
-            id: `${schema.table}-${schema.foreign_table_name}-${schema.foreign_column_name}`,
-            source: schema.table,
-            target: targetNode ? targetNode.id : null,
-          };
-        });
+        //   const edgeData = schemaData.map((table) => {
+        //     const targetNode = nodeData.find((node) => node.table_name === table.foreign_table_name);
+        //     return {
+        //       id: `${table.table_name}-${table.references}-${table.foreign_column_name}`,
+        //       source: table.table,
+        //       target: table.referenced_key_name,
+        //     };
+        //   });
         setNodes(nodeData);
-        setEdges(edgeData);
+        //   setEdges(edgeData);
       } catch (err) {
         console.log(err);
       }
