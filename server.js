@@ -60,8 +60,7 @@ app.get('/api/schemas', async (req, res) => {
       tc.table_name,
       kcu.column_name,
       ccu.table_name AS foreign_table_name,
-      ccu.column_name AS foreign_column_name,
-      ccu.table_name AS referenced_table_name
+      ccu.column_name AS foreign_column_name
     FROM
       information_schema.table_constraints AS tc
     JOIN information_schema.key_column_usage AS kcu
@@ -77,10 +76,11 @@ app.get('/api/schemas', async (req, res) => {
     const client = await pool.connect();
     const result = await client.query(publicSchemaQuery);
     const schemas = result.rows.map((row) => ({
-      table: row.table_name,
-      column: row.column_name,
+      table_name: row.table_name,
+      foreign_key: row.column_name,
       type: row.data_type,
-      references: row.referenced_table_name,
+      references: row.foreign_table_name,
+      referenced_key_name: row.foreign_column_name,
     }));
     res.json({ schemas });
     client.release();
