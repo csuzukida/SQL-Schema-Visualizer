@@ -61,7 +61,7 @@ app.get('/api/schemas', async (req, res) => {
       kcu.column_name,
       ccu.table_name AS foreign_table_name,
       ccu.column_name AS foreign_column_name,
-      kcu.table_name AS referenced_table_name
+      ccu.table_name AS referenced_table_name
     FROM
       information_schema.table_constraints AS tc
     JOIN information_schema.key_column_usage AS kcu
