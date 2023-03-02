@@ -109,6 +109,7 @@ function Flow() {
                 color: '#12343b',
               },
               sourcePosition: 'right',
+              extent: 'parent',
             });
           }
         });
