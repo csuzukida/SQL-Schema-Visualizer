@@ -42,3 +42,19 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.react-flow__handle-top {
+  top: 12px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  transform: translate(-50%);
+}
+
+.react-flow__handle-bottom {
+  top: 12px !important;
+  left: 148px !important;
+  right: 0px !important;
+  bottom: 0 !important;
+  transform: translate(-50%);
+}

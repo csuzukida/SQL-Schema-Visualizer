@@ -7,6 +7,8 @@ import ReactFlow, {
   Controls,
   Background,
   Edge,
+  Handle,
+  Position,
 } from 'react-flow-renderer';
 import axios from 'axios';
 import 'react-flow-renderer/dist/style.css';
