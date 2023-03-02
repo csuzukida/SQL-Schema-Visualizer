@@ -16,7 +16,6 @@ function Buttons(props) {
   };
 
   const handleMenuClick = () => {
-    console.log('handleMenuClick');
     setShowMenu(true);
   };
 

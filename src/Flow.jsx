@@ -30,7 +30,7 @@ function Flow() {
     [],
   );
 
-  const handleAddNode = (node) => {
+  const handleAddNode = (nodeName) => {
     const numCols = 5;
     const startX = 100;
     const startY = 100;
@@ -43,7 +43,7 @@ function Flow() {
     const yPos = startY + row * rowHeight;
 
     const newGroupNode = {
-      id: node,
+      id: nodeName,
       type: 'group',
       position: {
         x: xPos + Math.floor(Math.random() * 10),
@@ -60,13 +60,13 @@ function Flow() {
     };
 
     const newTableNode = {
-      id: node + 1,
+      id: nodeName + 1,
       type: 'output',
       data: {
-        label: `Table ${node}`,
+        label: `Table ${nodeName}`,
       },
       position: { x: 25, y: 10 },
-      parentNode: node,
+      parentNode: nodeName,
       extent: 'parent',
       style: {
         background: '#c89666',
@@ -76,7 +76,7 @@ function Flow() {
       targetPosition: 'left',
     };
 
-    setNodes([...nodes, newGroupNode, newTableNode]);
+    setNodes([newGroupNode, newTableNode, ...nodes]);
   };
 
   useEffect(() => {
