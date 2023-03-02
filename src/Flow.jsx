@@ -37,12 +37,29 @@ function Flow() {
         const schemaData = response.data.result;
         const allNodes = [];
 
+        const numCols = 5;
+
+        const startX = 100;
+        const startY = 100;
+
+        const colWidth = 300;
+        const rowHeight = 250;
+
         // Generate the group nodes
-        schemaData.forEach((schema) => {
+        schemaData.forEach((schema, index) => {
+          const col = index % numCols;
+          const row = Math.floor(index / numCols);
+
+          const xPos = startX + col * colWidth;
+          const yPos = startY + row * rowHeight;
+
           allNodes.push({
             id: schema.table_name,
             type: 'group',
-            position: { x: Math.floor(Math.random() * 800), y: Math.floor(Math.random() * 800) },
+            position: {
+              x: xPos + Math.floor(Math.random() * 10),
+              y: yPos + Math.floor(Math.random() * 10),
+            },
             style: {
               background: '#2d545e',
               border: '1px solid #E2BAB1',
@@ -51,6 +68,7 @@ function Flow() {
               width: 200,
               height: 150,
             },
+            extent: 'parent',
           });
         });
 
@@ -66,6 +84,7 @@ function Flow() {
               extent: 'parent',
               style: {
                 background: '#c89666',
+                color: '#12343b',
               },
             });
           }
@@ -76,12 +95,13 @@ function Flow() {
           if (schema.foreign_key) {
             allNodes.push({
               id: schema.table_name + 2,
-              type: 'input',
+              type: 'output',
               data: { label: schema.foreign_key },
-              position: { x: 0, y: 30 },
+              position: { x: 0, y: 40 },
               parentNode: schema.table_name + 1,
               style: {
                 background: '#c89666',
+                color: '#12343b',
               },
             });
           }
@@ -93,11 +113,14 @@ function Flow() {
 
         schemaData.forEach((schema) => {
           if (schema.references) {
-            allEdges.push({
+            const node = {
               id: `${schema.table_name}-${schema.references}`,
               source: schema.table_name + 2,
-              target: schema.references + 1,
-            });
+              target: schema.table_name + 1,
+            };
+            console.log('node_source:', node.source);
+
+            allEdges.push(node);
           }
         });
 
@@ -118,7 +141,7 @@ function Flow() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         snapToGrid
-        snapGrid={[15, 15]}
+        snapGrid={[5, 5]}
       >
         <Background />
         <Controls />
