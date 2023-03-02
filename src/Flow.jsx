@@ -1,36 +1,19 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import React, { useState, useCallback, useEffect } from 'react';
-import ReactFlow, {
-  addEdge,
-  applyNodeChanges,
-  applyEdgeChanges,
-  Controls,
-  Background,
-  Edge,
-  Handle,
-  Position,
-} from 'react-flow-renderer';
+import React, {
+  useState, useCallback, useEffect, useRef,
+} from 'react';
 import axios from 'axios';
-import 'react-flow-renderer/dist/style.css';
+import {
+  ReactFlow, Background, Controls, Edge, Handle, Position, useStore,
+} from '@reactflow/core';
+import './styles.css';
 
 function Flow() {
-  const [nodes, setNodes] = useState([]);
-  const [edges, setEdges] = useState([]);
+  const reactFlowWrapper = useRef(null);
+  const [elements, setElements] = useState([]);
+  const store = useStore();
 
-  const onNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [],
-  );
-
-  const onEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [],
-  );
-
-  const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge({ ...params, sourceHandle: null, targetHandle: 'target' }, eds)),
-    [],
-  );
+  const onConnect = useCallback((params) => console.log(params), []);
 
   useEffect(() => {
     async function fetchData() {
@@ -79,18 +62,14 @@ function Flow() {
             allNodes.push({
               id: schema.table_name + 1,
               type: 'output',
-              data: {
-                label: `Table ${schema.table_name}`,
-              },
+              data: { label: `Table ${schema.table_name}`, parent: schema.table_name },
               position: { x: 25, y: 10 },
-              parentNode: schema.table_name,
-              extent: 'parent',
+              snapGrid: { width: 200, height: 150 },
               style: {
                 background: '#c89666',
                 color: '#12343b',
                 fontWeight: 'bold',
               },
-              targetPosition: 'left',
             });
           }
         });
@@ -101,18 +80,17 @@ function Flow() {
             allNodes.push({
               id: schema.table_name + 2,
               type: 'input',
-              data: { label: `${schema.foreign_key}` },
+              data: { label: `${schema.foreign_key}`, parent: schema.table_name },
               position: { x: 25, y: 60 },
-              parentNode: schema.table_name,
               style: {
                 background: '#c89666',
                 color: '#12343b',
               },
-              sourcePosition: 'right',
             });
           }
         });
-        setNodes(allNodes);
+
+        setElements(allNodes);
 
         // Generate the edges
         const allEdges = [];
@@ -132,7 +110,7 @@ function Flow() {
           }
         });
 
-        setEdges(allEdges);
+        setElements((els) => els.concat(allEdges));
       } catch (err) {
         console.log(err);
       }
@@ -141,19 +119,77 @@ function Flow() {
   }, []);
 
   return (
-    <div className="diagram">
+    <div className="react-flow-container" ref={reactFlowWrapper}>
       <ReactFlow
-        nodes={nodes}
-        onNodesChange={onNodesChange}
-        edges={edges}
-        onEdgesChange={onEdgesChange}
+        elements={elements}
         onConnect={onConnect}
+        onLoad={() => store.fitView()}
+        nodeTypes={{
+          group: GroupNode,
+          input: InputNode,
+          output: OutputNode,
+        }}
+        edgeTypes={{ default: Edge }}
         snapToGrid
-        snapGrid={[5, 5]}
+        snapGrid={[15, 15]}
       >
-        <Background />
+        <Background color="#aaa" gap={16} />
         <Controls />
       </ReactFlow>
+    </div>
+  );
+}
+
+function GroupNode({ data, children }) {
+  const { position, id, style } = data;
+  const nodeWidth = style.width;
+  const nodeHeight = style.height;
+
+  return (
+    <div
+      style={{
+        ...style,
+        position: 'absolute',
+        left: position.x,
+        top: position.y,
+      }}
+    >
+      <Handle
+        type="target"
+        position={Position.Left}
+        id={id}
+        className="react-flow__handle-custom"
+      />
+      <div className="react-flow__group__title">{id}</div>
+      <div style={{ position: 'relative', width: nodeWidth, height: nodeHeight }}>{children}</div>
+      <Handle
+        type="source"
+        position={Position.Right}
+        id={id}
+        className="react-flow__handle-custom"
+      />
+    </div>
+  );
+}
+
+function InputNode({ data }) {
+  const { label, parent } = data;
+
+  return (
+    <div className="react-flow__node-content">
+      <div>{label}</div>
+      <Handle type="source" position={Position.Right} id={parent} />
+    </div>
+  );
+}
+
+function OutputNode({ data }) {
+  const { label, parent } = data;
+
+  return (
+    <div className="react-flow__node-content">
+      <Handle type="target" position={Position.Left} id={parent} />
+      <div>{label}</div>
     </div>
   );
 }

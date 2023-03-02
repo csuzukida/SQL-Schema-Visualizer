@@ -1,11 +1,14 @@
 import React from 'react';
+import { ReactFlowProvider } from 'reactflow';
 import Flow from './Flow';
 
 function App() {
   return (
-    <div className="container">
-      <Flow />
-    </div>
+    <ReactFlowProvider>
+      <div className="container">
+        <Flow />
+      </div>
+    </ReactFlowProvider>
   );
 }
 

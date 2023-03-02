@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/csuzukida/SQL-Schema-Visualizer#readme",
   "dependencies": {
+    "@reactflow/core": "^11.5.5",
     "axios": "^1.3.4",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
