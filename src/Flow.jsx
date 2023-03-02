@@ -77,7 +77,7 @@ function Flow() {
           if (!allNodes.includes(schema.table_name)) {
             allNodes.push({
               id: schema.table_name + 1,
-              type: 'input',
+              type: 'output',
               data: { label: schema.table_name },
               position: { x: 25, y: 10 },
               parentNode: schema.table_name,
@@ -95,7 +95,7 @@ function Flow() {
           if (schema.foreign_key) {
             allNodes.push({
               id: schema.table_name + 2,
-              type: 'output',
+              type: 'input',
               data: { label: schema.foreign_key },
               position: { x: 0, y: 40 },
               parentNode: schema.table_name + 1,
@@ -116,9 +116,10 @@ function Flow() {
             const node = {
               id: `${schema.table_name}-${schema.references}`,
               source: schema.table_name + 2,
-              target: schema.table_name + 1,
+              target: schema.references + 1,
+              animated: true,
+              zIndex: 10,
             };
-            console.log('node_source:', node.source);
 
             allEdges.push(node);
           }
