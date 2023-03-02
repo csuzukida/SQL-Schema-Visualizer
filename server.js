@@ -56,33 +56,59 @@ app.get('/bundle.js', (req, res) => {
 app.get('/api/schemas', async (req, res) => {
   try {
     const publicSchemaQuery = `
-    SELECT
-      tc.table_name,
-      kcu.column_name,
-      ccu.table_name AS foreign_table_name,
-      ccu.column_name AS foreign_column_name
-    FROM
-      information_schema.table_constraints AS tc
-    JOIN information_schema.key_column_usage AS kcu
-      ON tc.constraint_name = kcu.constraint_name
-    JOIN information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
-    JOIN information_schema.tables AS t
-      ON t.table_name = ccu.table_name
-    WHERE
-      constraint_type = 'FOREIGN KEY'
-      AND tc.table_schema = 'public';
+      SELECT
+        tc.table_name,
+        kcu.column_name,
+        ccu.table_name AS foreign_table_name,
+        ccu.column_name AS foreign_column_name
+      FROM
+        information_schema.table_constraints AS tc
+      JOIN information_schema.key_column_usage AS kcu
+        ON tc.constraint_name = kcu.constraint_name
+      JOIN information_schema.constraint_column_usage AS ccu
+        ON ccu.constraint_name = tc.constraint_name
+      LEFT JOIN information_schema.tables AS t
+        ON t.table_name = ccu.table_name
+      WHERE constraint_type = 'FOREIGN KEY'
+        AND tc.table_schema = 'public';
     `;
+
+    const allTablesQuery = `
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+    `;
+
     const client = await pool.connect();
-    const result = await client.query(publicSchemaQuery);
-    const schemas = result.rows.map((row) => ({
+    const tablesWithForeignKeys = await client.query(publicSchemaQuery);
+    const allTables = await client.query(allTablesQuery);
+
+    const tablesWithForeignKeysFormatted = tablesWithForeignKeys.rows.map((row) => ({
       table_name: row.table_name,
-      foreign_key: row.column_name,
-      type: row.data_type,
-      references: row.foreign_table_name,
-      referenced_key_name: row.foreign_column_name,
+      id: '_id',
+      foreign_key: row.column_name || null,
+      references: row.foreign_table_name === row.table_name ? null : row.foreign_table_name,
+      referenced_key_name: row.foreign_column_name || null,
     }));
-    res.json({ schemas });
+
+    const allTablesFormatted = allTables.rows.map((row) => ({
+      table_name: row.table_name,
+      id: '_id',
+      foreign_key: null,
+      references: null,
+      referenced_key_name: null,
+    }));
+
+    const result = [
+      ...tablesWithForeignKeysFormatted,
+      ...allTablesFormatted.filter(
+        (table) => !tablesWithForeignKeysFormatted.some(
+          (tableWithForeignKey) => tableWithForeignKey.table_name === table.table_name,
+        ),
+      ),
+    ];
+
+    res.json({ result });
     client.release();
   } catch (err) {
     console.log(err);
