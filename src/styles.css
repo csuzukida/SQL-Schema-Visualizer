@@ -29,3 +29,15 @@ body {
   height: 100%;
   width: 100%;
 }
+
+.table-node {
+  border: 1px solid #58aaaf;
+  background-color: rgb(205, 186, 194);
+  border-radius: 5px;
+  height: 1.5rem;
+  width: auto;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

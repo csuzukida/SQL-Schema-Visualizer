@@ -12,11 +12,12 @@ import axios from 'axios';
 import 'react-flow-renderer/dist/style.css';
 
 function Flow() {
-  const [nodes, setNodes] = useState([]);
+  const [parentNodes, setParentNodes] = useState([]);
+  const [childNodes, setChildNodes] = useState([]);
   const [edges, setEdges] = useState([]);
 
   const onNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes) => setParentNodes((nds) => applyNodeChanges(changes, nds)),
     [],
   );
 
@@ -31,37 +32,28 @@ function Flow() {
     async function fetchData() {
       try {
         const response = await axios.get('/api/schemas');
-        const schemaData = response.data.schemas;
-        const nodeData = [];
-        console.log('SCHEMA_DATA: ', schemaData);
-        schemaData.forEach((schema, index) => {
-          const tableNode = {
-            id: schema.table_name,
-            data: { label: schema.table_name },
-            position: {
-              x: 100 + index * Math.floor(Math.random() * 80),
-              y: 100 + index * Math.floor(Math.random() * 50),
-            },
-          };
+        const schemaData = response.data.result;
+        console.log('SCHEMA_DATA', schemaData);
 
-          const foreignKeyNode = {
-            id: `${schema.table_name}-${schema.foreign_key}`,
-            data: { label: schema.foreign_key },
-            position: {
-              x: tableNode.position.x,
-              y: tableNode.position.y + 200,
-            },
-          };
-          nodeData.push(tableNode, foreignKeyNode);
+        const parentNodes = [];
+
+        schemaData.forEach((schema) => {
+          if (!parentNodes.includes(schema.table_name)) {
+            parentNodes.push(schema.table_name);
+          }
         });
-        console.log('NODE_DATA: ', nodeData);
-        const edgeData = schemaData.map((schema) => ({
-          id: `${schema.table_name}-${schema.foreign_key}-${schema.references}-${schema.referenced_key_name}`,
-          source: `${schema.table_name}-${schema.foreign_key}`,
-          target: `${schema.references}-${schema.referenced_key_name}`,
-        }));
-        setNodes(nodeData);
-        setEdges(edgeData);
+
+        const childNodes = [];
+
+        console.log('PARENT_NODES', parentNodes);
+
+        // schemaData.forEach((schema) => {
+
+        // })
+
+        setParentNodes(parentNodes);
+        setChildNodes(childNodes);
+        // setEdges(edgeData);
       } catch (err) {
         console.log(err);
       }
@@ -72,7 +64,7 @@ function Flow() {
   return (
     <div className="diagram">
       <ReactFlow
-        nodes={nodes}
+        nodes={parentNodes.concat(childNodes)}
         onNodesChange={onNodesChange}
         edges={edges}
         onEdgesChange={onEdgesChange}
