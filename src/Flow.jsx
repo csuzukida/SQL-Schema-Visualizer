@@ -7,6 +7,8 @@ import ReactFlow, {
   Controls,
   Background,
   Edge,
+  Handle,
+  Position,
 } from 'react-flow-renderer';
 import axios from 'axios';
 import 'react-flow-renderer/dist/style.css';
@@ -68,7 +70,6 @@ function Flow() {
               width: 200,
               height: 150,
             },
-            extent: 'parent',
           });
         });
 
@@ -97,8 +98,8 @@ function Flow() {
               id: schema.table_name + 2,
               type: 'input',
               data: { label: schema.foreign_key },
-              position: { x: 0, y: 40 },
-              parentNode: schema.table_name + 1,
+              position: { x: 25, y: 40 },
+              parentNode: schema.table_name,
               style: {
                 background: '#c89666',
                 color: '#12343b',
