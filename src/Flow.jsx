@@ -79,13 +79,16 @@ function Flow() {
             allNodes.push({
               id: schema.table_name + 1,
               type: 'output',
-              data: { label: schema.table_name },
+              data: {
+                label: `Table ${schema.table_name}`,
+              },
               position: { x: 25, y: 10 },
               parentNode: schema.table_name,
               extent: 'parent',
               style: {
                 background: '#c89666',
                 color: '#12343b',
+                fontWeight: 'bold',
               },
               targetPosition: 'left',
             });
@@ -98,8 +101,8 @@ function Flow() {
             allNodes.push({
               id: schema.table_name + 2,
               type: 'input',
-              data: { label: schema.foreign_key },
-              position: { x: 25, y: 40 },
+              data: { label: `${schema.foreign_key}` },
+              position: { x: 25, y: 60 },
               parentNode: schema.table_name,
               style: {
                 background: '#c89666',
@@ -116,15 +119,16 @@ function Flow() {
 
         schemaData.forEach((schema) => {
           if (schema.references) {
-            const node = {
+            const edge = {
               id: `${schema.table_name}-${schema.references}`,
               source: schema.table_name + 2,
               target: schema.references + 1,
               animated: true,
               zIndex: 10,
+              interactionWidth: 50,
             };
 
-            allEdges.push(node);
+            allEdges.push(edge);
           }
         });
 
