@@ -40,46 +40,68 @@ function Flow() {
         // Generate the group nodes
         schemaData.forEach((schema) => {
           allNodes.push({
-            id: schema.table_name + 1,
+            id: schema.table_name,
             type: 'group',
             position: { x: Math.floor(Math.random() * 800), y: Math.floor(Math.random() * 800) },
             style: {
-              background: '#fff',
-              border: '1px solid #000',
+              background: '#2d545e',
+              border: '1px solid #E2BAB1',
               padding: 10,
               borderRadius: 5,
               width: 200,
-              height: 200,
+              height: 150,
             },
           });
         });
 
         // Generate the table nodes as children of the group nodes
-        schemaData.forEach((schema, index) => {
+        schemaData.forEach((schema) => {
           if (!allNodes.includes(schema.table_name)) {
             allNodes.push({
-              id: schema.table_name,
-              data: { label: schema.table_name },
-              position: { x: 250 + index * 30, y: 250 + index * 30 },
+              id: schema.table_name + 1,
               type: 'input',
-              parentNode: schema.table_name + 1,
+              data: { label: schema.table_name },
+              position: { x: 25, y: 10 },
+              parentNode: schema.table_name,
               extent: 'parent',
+              style: {
+                background: '#c89666',
+              },
             });
           }
         });
 
-        const testNode = {
-          id: 'test',
-          data: { label: 'test' },
-          position: { x: 250, y: 250 },
-          type: 'input',
-          parentNode: 'people',
-          extent: 'parent',
-        };
+        // Generate the foreign key nodes as children of the table nodes
+        schemaData.forEach((schema) => {
+          if (schema.foreign_key) {
+            allNodes.push({
+              id: schema.table_name + 2,
+              type: 'input',
+              data: { label: schema.foreign_key },
+              position: { x: 0, y: 30 },
+              parentNode: schema.table_name + 1,
+              style: {
+                background: '#c89666',
+              },
+            });
+          }
+        });
+        setNodes(allNodes);
 
-        const testNodes = allNodes.concat(testNode);
+        // Generate the edges
+        const allEdges = [];
 
-        setNodes(testNodes);
+        schemaData.forEach((schema) => {
+          if (schema.references) {
+            allEdges.push({
+              id: `${schema.table_name}-${schema.references}`,
+              source: schema.table_name + 2,
+              target: schema.references + 1,
+            });
+          }
+        });
+
+        setEdges(allEdges);
       } catch (err) {
         console.log(err);
       }
@@ -95,6 +117,8 @@ function Flow() {
         edges={edges}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        snapToGrid
+        snapGrid={[15, 15]}
       >
         <Background />
         <Controls />
