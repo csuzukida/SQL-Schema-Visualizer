@@ -6,18 +6,17 @@ import ReactFlow, {
   applyEdgeChanges,
   Controls,
   Background,
-  Handle,
+  Edge,
 } from 'react-flow-renderer';
 import axios from 'axios';
 import 'react-flow-renderer/dist/style.css';
 
 function Flow() {
-  const [parentNodes, setParentNodes] = useState([]);
-  const [childNodes, setChildNodes] = useState([]);
+  const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
 
   const onNodesChange = useCallback(
-    (changes) => setParentNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [],
   );
 
@@ -26,34 +25,32 @@ function Flow() {
     [],
   );
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge({ ...params, sourceHandle: null, targetHandle: 'target' }, eds)),
+    [],
+  );
 
   useEffect(() => {
     async function fetchData() {
       try {
         const response = await axios.get('/api/schemas');
         const schemaData = response.data.result;
-        console.log('SCHEMA_DATA', schemaData);
 
-        const parentNodes = [];
+        const allNodes = [];
 
-        schemaData.forEach((schema) => {
-          if (!parentNodes.includes(schema.table_name)) {
-            parentNodes.push(schema.table_name);
+        schemaData.forEach((schema, index) => {
+          if (!allNodes.includes(schema.table_name)) {
+            allNodes.push({
+              id: schema.table_name,
+              data: { label: schema.table_name },
+              position: { x: 250 + index * 30, y: 250 + index * 30 },
+              type: 'input',
+            });
           }
         });
 
-        const childNodes = [];
-
-        console.log('PARENT_NODES', parentNodes);
-
-        // schemaData.forEach((schema) => {
-
-        // })
-
-        setParentNodes(parentNodes);
-        setChildNodes(childNodes);
-        // setEdges(edgeData);
+        console.log('PARENT_NODES', allNodes);
+        setNodes(allNodes);
       } catch (err) {
         console.log(err);
       }
@@ -64,7 +61,7 @@ function Flow() {
   return (
     <div className="diagram">
       <ReactFlow
-        nodes={parentNodes.concat(childNodes)}
+        nodes={nodes}
         onNodesChange={onNodesChange}
         edges={edges}
         onEdgesChange={onEdgesChange}
