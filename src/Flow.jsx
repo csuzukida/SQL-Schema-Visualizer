@@ -88,6 +88,7 @@ function Flow() {
                 background: '#c89666',
                 color: '#12343b',
               },
+              targetPosition: 'left',
             });
           }
         });
@@ -105,6 +106,7 @@ function Flow() {
                 background: '#c89666',
                 color: '#12343b',
               },
+              sourcePosition: 'right',
             });
           }
         });

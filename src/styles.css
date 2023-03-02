@@ -43,7 +43,7 @@ body {
   align-items: center;
 }
 
-.react-flow__handle-top {
+/* .react-flow__handle-top {
   top: 12px !important;
   left: 0 !important;
   right: 0 !important;
@@ -57,4 +57,4 @@ body {
   right: 0px !important;
   bottom: 0 !important;
   transform: translate(-50%);
-}
+} */
