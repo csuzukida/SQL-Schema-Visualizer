@@ -6,11 +6,9 @@ import ReactFlow, {
   applyEdgeChanges,
   Controls,
   Background,
-  Edge,
-  Handle,
-  Position,
 } from 'react-flow-renderer';
 import axios from 'axios';
+import Buttons from './Buttons';
 import 'react-flow-renderer/dist/style.css';
 
 function Flow() {
@@ -31,6 +29,55 @@ function Flow() {
     (params) => setEdges((eds) => addEdge({ ...params, sourceHandle: null, targetHandle: 'target' }, eds)),
     [],
   );
+
+  const handleAddNode = (node) => {
+    const numCols = 5;
+    const startX = 100;
+    const startY = 100;
+    const colWidth = 300;
+    const rowHeight = 250;
+    const index = nodes.length;
+    const col = index % numCols;
+    const row = Math.floor(index / numCols);
+    const xPos = startX + col * colWidth;
+    const yPos = startY + row * rowHeight;
+
+    const newGroupNode = {
+      id: node,
+      type: 'group',
+      position: {
+        x: xPos + Math.floor(Math.random() * 10),
+        y: yPos + Math.floor(Math.random() * 10),
+      },
+      style: {
+        background: '#2d545e',
+        border: '1px solid #E2BAB1',
+        padding: 10,
+        borderRadius: 5,
+        width: 200,
+        height: 150,
+      },
+    };
+
+    const newTableNode = {
+      id: node + 1,
+      type: 'output',
+      data: {
+        label: `Table ${node}`,
+      },
+      position: { x: 25, y: 10 },
+      parentNode: node,
+      extent: 'parent',
+      style: {
+        background: '#c89666',
+        color: '#12343b',
+        fontWeight: 'bold',
+      },
+      targetPosition: 'left',
+    };
+
+    setNodes([...nodes, newGroupNode, newTableNode]);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -143,6 +190,7 @@ function Flow() {
 
   return (
     <div className="diagram">
+      <Buttons onAddNode={handleAddNode} />
       <ReactFlow
         nodes={nodes}
         onNodesChange={onNodesChange}
