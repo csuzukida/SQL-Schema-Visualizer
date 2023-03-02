@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
+  addNode,
   applyNodeChanges,
   applyEdgeChanges,
   Controls,
@@ -36,38 +37,28 @@ function Flow() {
         const schemaData = response.data.schemas;
         const nodeData = [];
         schemaData.forEach((schema, index) => {
-          const parentNode = {
-            id: schema.table_name,
-            data: { label: schema.table_name },
-            position: {
-              x: 100 + index * Math.floor(Math.random() * 80),
-              y: 100 + index * Math.floor(Math.random() * 50),
-            },
-          };
-          nodeData.push(parentNode);
-          if (schema.foreign_table_name) {
-            const childNode = {
-              id: `${schema.table_name}-${schema.references}`,
-              data: {
-                label: schema.foreign_column_name,
-                parent: schema.table_name,
-              },
+          if (!nodeData.find((node) => node.id === schema.table)) {
+            nodeData.push({
+              id: schema.table,
+              data: { label: schema.table },
               position: {
-                x: parentNode.position.x + 100,
-                y: parentNode.position.y,
+                x: 100 + index * Math.floor(Math.random() * 80),
+                y: 100 + index * Math.floor(Math.random() * 50),
               },
-            };
-            parentNode.data.children = [childNode.id];
-            nodeData.push(childNode);
+            });
           }
         });
-        const edgeData = schemaData.map((schema) => ({
-          id: `${schema.table_name}-${schema.references}-${schema.foreign_column_name}`,
-          source: schema.table_name,
-          target: `${schema.table_name}-${schema.references}-${schema.foreign_column_name}`,
-          animated: true,
-          label: schema.references,
-        }));
+        console.log('NODE_DATA: ', nodeData);
+        const edgeData = schemaData.map((schema) => {
+          // console.log('nodeData: ', nodeData);
+          const targetNode = nodeData.find((node) => node.table === schema.foreign_table_name);
+          console.log('targetNode: ', targetNode);
+          return {
+            id: `${schema.table}-${schema.foreign_table_name}-${schema.foreign_column_name}`,
+            source: schema.table,
+            target: targetNode ? targetNode.id : null,
+          };
+        });
         setNodes(nodeData);
         setEdges(edgeData);
       } catch (err) {
