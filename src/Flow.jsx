@@ -6,6 +6,7 @@ import ReactFlow, {
   applyEdgeChanges,
   Controls,
   Background,
+  DefaultEdgeOptions,
 } from 'react-flow-renderer';
 import axios from 'axios';
 import Buttons from './Buttons';
@@ -237,6 +238,7 @@ function Flow() {
         snapToGrid
         snapGrid={[5, 5]}
         onNodeDoubleClick={handleDoubleClick}
+        defaultEdgeOptions={{ animated: true, zIndex: 10, interactionWidth: 50 }}
       >
         <Background />
         <Controls />
