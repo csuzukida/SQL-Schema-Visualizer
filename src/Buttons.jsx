@@ -25,7 +25,7 @@ function Buttons(props) {
   return (
     <div className="buttons">
       <button type="button" onClick={handleMenuClick}>
-        Add Node
+        Add New Table
       </button>
       {showMenu && (
         <form onSubmit={handleSubmit}>
@@ -37,15 +37,6 @@ function Buttons(props) {
               onChange={handleRadioChange}
             />
             Group
-          </label>
-          <label>
-            <input
-              type="radio"
-              value="foreign-key"
-              checked={nodeType === 'foreign-key'}
-              onChange={handleRadioChange}
-            />
-            Foreign Key
           </label>
           {nodeType === 'group' && (
             <input type="text" value={nodeName} onChange={handleNameChange} />

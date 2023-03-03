@@ -14,6 +14,9 @@ import 'react-flow-renderer/dist/style.css';
 function Flow() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [nodeName, setNodeName] = useState('');
+  const [selectedNode, setSelectedNode] = useState(null);
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -30,24 +33,58 @@ function Flow() {
     [],
   );
 
+  const handleAddForeignKey = (foreignKeyName) => {
+    const selectedParentNode = selectedNode.id;
+    console.log('selectedParentNode', selectedParentNode);
+    const newForeignKeyNode = {
+      id: foreignKeyName + 2,
+      type: 'input',
+      data: { label: `${foreignKeyName}` },
+      position: { x: 25, y: 45 },
+      parentNode: selectedParentNode,
+      style: {
+        background: '#c89666',
+        color: '#12343b',
+      },
+      zIndex: 10,
+      sourcePosition: 'right',
+      extent: 'parent',
+    };
+    setNodes([...nodes, newForeignKeyNode]);
+    setShowModal(false);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    handleAddForeignKey(nodeName);
+  };
+
+  const handleDoubleClick = (event, node) => {
+    console.log('double click');
+    event.preventDefault();
+    if (node.type === 'group') {
+      setSelectedNode(node);
+      setShowModal(true);
+    }
+  };
+
   const handleAddNode = (nodeName) => {
-    const numCols = 5;
-    const startX = 100;
-    const startY = 100;
     const colWidth = 300;
     const rowHeight = 250;
-    const index = nodes.length;
-    const col = index % numCols;
-    const row = Math.floor(index / numCols);
-    const xPos = startX + col * colWidth;
-    const yPos = startY + row * rowHeight;
+
+    const lastNode = nodes[nodes.length - 1];
+    const lastNodeX = lastNode.position.x;
+    const lastNodeY = lastNode.position.y;
+
+    const newNodeX = lastNodeX + colWidth;
+    const newNodeY = lastNodeY + rowHeight;
 
     const newGroupNode = {
       id: nodeName,
       type: 'group',
       position: {
-        x: xPos + Math.floor(Math.random() * 10),
-        y: yPos + Math.floor(Math.random() * 10),
+        x: newNodeX + Math.floor(Math.random() * 10),
+        y: newNodeY + Math.floor(Math.random() * 10),
       },
       style: {
         background: '#2d545e',
@@ -199,10 +236,22 @@ function Flow() {
         onConnect={onConnect}
         snapToGrid
         snapGrid={[5, 5]}
+        onNodeDoubleClick={handleDoubleClick}
       >
         <Background />
         <Controls />
       </ReactFlow>
+      {showModal && (
+        <div className="modal">
+          <form className="modal-form" onSubmit={handleSubmit}>
+            <label>
+              Foreign Key Name:
+              <input type="text" value={nodeName} onChange={(e) => setNodeName(e.target.value)} />
+            </label>
+            <button type="submit">Add Foreign Key</button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
